@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.vibe'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.postgresql:postgresql'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // JWT (0.12.x 최신 API 적용)
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    // 테스트 구동 시에도 상위 루트 디렉토리의 .env 파일을 자동으로 파싱하여 시스템 환경변수로 등록합니다.
+    if (file("../.env").exists()) {
+        file("../.env").readLines().each { line ->
+            line = line.trim()
+            if (!line.startsWith("#") && line.contains("=")) {
+                def parts = line.split("=", 2)
+                def key = parts[0].trim()
+                def value = parts[1].trim().replace("\"", "").replace("'", "")
+                environment key, value
+            }
+        }
+    }
+}
+
+// 로컬 bootRun 기동 시 상위 루트 디렉토리의 .env 파일을 자동으로 파싱하여 시스템 환경변수로 등록합니다.
+tasks.named('bootRun') {
+    if (file("../.env").exists()) {
+        file("../.env").readLines().each { line ->
+            line = line.trim()
+            if (!line.startsWith("#") && line.contains("=")) {
+                def parts = line.split("=", 2)
+                def key = parts[0].trim()
+                def value = parts[1].trim().replace("\"", "").replace("'", "")
+                environment key, value
+            }
+        }
+    }
+}

@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    # 루트 디렉토리의 .env 로부터 주입되는 환경변수를 바인딩합니다.
+    url: ${DB_URL}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  # .env의 JWT_SCRET 키로 서명용 비밀키를 주입받습니다.
+  secret: ${JWT_SCRET}
+  expiration: 86400000 # 24시간 (밀리초 단위)
