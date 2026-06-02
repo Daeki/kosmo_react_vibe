@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import NoticeList from './pages/NoticeList';
+import NoticeDetail from './pages/NoticeDetail';
+import NoticeCreate from './pages/NoticeCreate';
+import NoticeEdit from './pages/NoticeEdit';
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -78,13 +82,7 @@ const Board = () => (
   </div>
 );
 
-const Notice = () => (
-  <div className="p-8 max-w-md mx-auto bg-white rounded-3xl shadow-sm mt-10 border border-slate-50">
-    <h2 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">공지사항</h2>
-    <p className="text-slate-500 text-sm mb-6">첫 번째 공지사항이 준비 중입니다.</p>
-    <Link to="/" className="text-blue-600 font-bold text-sm hover:underline">홈으로 돌아가기</Link>
-  </div>
-);
+
 
 const MainLayout = () => {
   const { loading } = useAuth();
@@ -109,7 +107,10 @@ const MainLayout = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/board" element={<Board />} />
-          <Route path="/notice" element={<Notice />} />
+          <Route path="/notice" element={<NoticeList />} />
+          <Route path="/notice/create" element={<NoticeCreate />} />
+          <Route path="/notice/edit/:id" element={<NoticeEdit />} />
+          <Route path="/notice/:id" element={<NoticeDetail />} />
         </Routes>
       </main>
     </div>

@@ -38,6 +38,7 @@ public class Notice {
     // 작성자가 탈퇴하더라도 공지사항은 보존되어야 하므로 nullable = true 설정
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = true)
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.SET_NULL)
     private Member author;
 
     @Builder.Default

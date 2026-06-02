@@ -186,20 +186,150 @@
 
 ### 3-1. 공지사항 목록 조회
 * **Endpoint**: `GET /api/notices`
-* **인증 필요 여부**: 없음
-* **응답 바디**: 자유게시판 목록과 동일한 포맷
+* **인증 필요 여부**: 없음 (PermitAll)
+* **쿼리 파라미터 (Query Params)**:
+  - `page`: 페이지 번호 (0-based index, 기본값: 0)
+  - `size`: 한 페이지당 항목 개수 (기본값: 10)
+* **응답 바디 (JSON - 200 OK)**:
+  ```json
+  {
+    "content": [
+      {
+        "id": 2,
+        "title": "[공지] 서비스 점검 및 임시 휴무 안내",
+        "views": 42,
+        "isPinned": true,
+        "authorNickname": "어드민",
+        "createdAt": "2026-06-02T10:00:00"
+      },
+      {
+        "id": 1,
+        "title": "토스 스탁 Vibe 서비스 그랜드 오픈!",
+        "views": 150,
+        "isPinned": false,
+        "authorNickname": "탈퇴한 관리자",
+        "createdAt": "2026-06-02T09:00:00"
+      }
+    ],
+    "pageable": {
+      "pageNumber": 0,
+      "pageSize": 10,
+      "sort": {
+        "empty": true,
+        "sorted": false,
+        "unsorted": true
+      },
+      "offset": 0,
+      "paged": true,
+      "unpaged": false
+    },
+    "totalPages": 1,
+    "totalElements": 2,
+    "last": true,
+    "size": 10,
+    "number": 0,
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "numberOfElements": 2,
+    "first": true,
+    "empty": false
+  }
+  ```
 
 ### 3-2. 공지사항 상세 조회
 * **Endpoint**: `GET /api/notices/{id}`
-* **인증 필요 여부**: 없음
+* **인증 필요 여부**: 없음 (PermitAll, 상세 조회 시 조회수 1 증가 처리됨)
+* **응답 바디 (JSON - 200 OK)**:
+  ```json
+  {
+    "id": 1,
+    "title": "토스 스탁 Vibe 서비스 그랜드 오픈!",
+    "content": "안녕하세요. 토스 스탁 Vibe입니다.\n드디어 서비스를 그랜드 오픈합니다.\n많은 관심 부탁드립니다.",
+    "views": 151,
+    "isPinned": false,
+    "authorNickname": "탈퇴한 관리자",
+    "createdAt": "2026-06-02T09:00:00",
+    "attachments": [
+      {
+        "id": 1,
+        "originalFileName": "readme.txt",
+        "storeFileName": "notice_1_readme.txt",
+        "fileSize": 1024,
+        "contentType": "text/plain"
+      }
+    ]
+  }
+  ```
 
-### 3-3. 공지사항 등록 / 수정 / 삭제
-* **Endpoints**:
-  - 등록: `POST /api/notices`
-  - 수정: `PUT /api/notices/{id}`
-  - 삭제: `DELETE /api/notices/{id}`
-* **인증 필요 여부**: **필수** (`ROLE_ADMIN` 관리자 권한 필수)
-* **요청/응답 규격**: 자유게시판(Board)의 CRUD와 동일합니다.
+### 3-3. 공지사항 등록 (글쓰기)
+* **Endpoint**: `POST /api/notices`
+* **Content-Type**: `multipart/form-data`
+* **인증 필요 여부**: **필수** (`ROLE_ADMIN` 권한을 가진 사용자 토큰이 필요합니다.)
+* **요청 파라미터 (form-data)**:
+  - `title` (String, 필수): 공지사항 제목 (최대 150자)
+  - `content` (String, 필수): 공지사항 본문 내용
+  - `isPinned` (boolean, 선택): 상단 고정 여부 (기본값: false)
+  - `files` (MultipartFile[], 선택): 첨부파일 배열 (최대 5개까지 업로드 허용)
+* **응답 바디 (JSON - 200 OK)**:
+  ```json
+  {
+    "id": 3,
+    "title": "새로 작성한 공지사항 제목",
+    "views": 0,
+    "isPinned": true,
+    "authorNickname": "어드민",
+    "createdAt": "2026-06-02T12:00:00"
+  }
+  ```
+* **실패 응답 (400 Bad Request)**:
+  - 첨부파일이 5개를 초과한 경우:
+    ```json
+    {
+      "error": "첨부파일은 최대 5개까지만 업로드 가능합니다."
+    }
+    ```
+
+### 3-4. 공지사항 수정
+* **Endpoint**: `PUT /api/notices/{id}`
+* **Content-Type**: `multipart/form-data`
+* **인증 필요 여부**: **필수** (`ROLE_ADMIN` 권한을 가진 사용자 토큰이 필요합니다.)
+* **요청 파라미터 (form-data)**:
+  - `title` (String, 필수): 수정할 공지사항 제목
+  - `content` (String, 필수): 수정할 공지사항 본문 내용
+  - `isPinned` (boolean, 선택): 상단 고정 여부
+  - `deleteAttachmentIds` (List<Long>, 선택): 삭제할 기존 첨부파일 ID 배열
+  - `files` (MultipartFile[], 선택): 새로 추가할 첨부파일 배열 (최종 전체 파일 개수가 5개 이하여야 함)
+* **응답 바디 (JSON - 200 OK)**:
+  ```json
+  {
+    "id": 1,
+    "title": "수정된 공지사항 제목",
+    "views": 151,
+    "isPinned": false,
+    "authorNickname": "어드민",
+    "createdAt": "2026-06-02T09:00:00"
+  }
+  ```
+
+### 3-5. 공지사항 삭제
+* **Endpoint**: `DELETE /api/notices/{id}`
+* **인증 필요 여부**: **필수** (`ROLE_ADMIN` 권한을 가진 사용자 토큰이 필요하며, 작성자 본인만 지울 수 있습니다.)
+* **응답 바디 (JSON - 200 OK)**:
+  ```json
+  {
+    "message": "공지사항이 성공적으로 삭제되었습니다."
+  }
+  ```
+* **실패 응답 (403 Forbidden)**:
+  - 본인이 작성한 글이 아닐 때:
+    ```json
+    {
+      "error": "본인이 작성한 공지사항만 삭제할 수 있습니다."
+    }
+    ```
 
 ---
 
@@ -247,3 +377,26 @@
     "history": [73000, 73500, 72800, 74000, 73900, 74200, 74500]
   }
   ```
+
+---
+
+## 📁 5. 공통 파일 다운로드 API (File Resource)
+
+### 5-1. 공통 파일 다운로드
+* **Endpoint**: `GET /api/files/download/{domainType}/{id}`
+  - 예: `GET /api/files/download/notice/1`
+* **인증 필요 여부**: 없음 (PermitAll, 비인증 브라우저 직접 링크 가능)
+* **경로 파라미터 (Path Params)**:
+  - `domainType`: 파일이 소속된 도메인명 (`notice`, 향후 `board` 등 추가 가능)
+  - `id`: 파일의 고유 DB 식별자 (NoticeAttachment PK 등)
+* **응답 바디 (Binary Stream)**:
+  - **성공 (200 OK)**: 파일 이진 바이트 스트림 반환
+  - **헤더 설정**:
+    - `Content-Disposition: attachment; filename="{UTF-8 인코딩된 원본 파일명}"`
+    - `Content-Type: application/octet-stream`
+  - **실패 (400 Bad Request - 유효하지 않은 파일 등)**:
+    ```json
+    {
+      "error": "존재하지 않는 첨부파일입니다. ID: {id}"
+    }
+    ```

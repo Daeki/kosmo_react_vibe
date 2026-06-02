@@ -47,8 +47,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 인증 관련 API 오픈
                 .requestMatchers("/api/auth/**").permitAll()
-                // 주식, 게시판, 공지사항의 단순 읽기는 비인증 오픈
-                .requestMatchers(HttpMethod.GET, "/api/boards/**", "/api/notices/**", "/api/stocks/**").permitAll()
+                // 주식, 게시판, 공지사항의 단순 읽기 및 파일 다운로드는 비인증 오픈
+                .requestMatchers(HttpMethod.GET, "/api/boards/**", "/api/notices/**", "/api/stocks/**", "/api/files/download/**").permitAll()
                 // 헬로 접속용 테스트 오픈
                 .requestMatchers("/api/hello").permitAll()
                 // 그 외 게시판 쓰기/수정/삭제 등 상태 변경은 인증 요구
