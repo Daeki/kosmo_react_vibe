@@ -44,15 +44,15 @@ gantt
 ## 🔑 Milestone 2: 회원 관리 및 JWT 인증 체계 구축
 > 회원가입, 로그인 기능을 백엔드 보안 필터와 연결하고 프론트엔드 UI를 통해 로그인 상태를 전역적으로 유지합니다.
 
-- [ ] **Backend Security & Authentication**
-  - [ ] `Member` 엔티티 및 `Role` Enum (USER, ADMIN) 정의
-  - [ ] JWT 유틸 라이브러리 개발 (`JwtTokenProvider`) 및 인증 필터(`JwtAuthenticationFilter`) 작성
-  - [ ] Spring Security 6 Filter Chain 및 CORS 구체적 설정 (`SecurityConfig`)
-  - [ ] `POST /api/auth/signup`, `POST /api/auth/login`, `GET /api/auth/me` API 개발
-- [ ] **Frontend Authentication Flow**
-  - [ ] Fetch API 기반 공통 통신 유틸리티(`api.js`) 및 에러/토큰 가로채기(Interceptor) 로직 구성
-  - [ ] 토스 스타일의 간결한 회원가입 및 로그인 입력 페이지 구현
-  - [ ] 로컬 스토리지 또는 Context API를 이용한 로그인 사용자 상태 전역 관리 구현
+- [x] **Backend Security & Authentication**
+  - [x] `Member` 엔티티 및 `Role` Enum (USER, ADMIN) 정의
+  - [x] JWT 유틸 라이브러리 개발 (`JwtTokenProvider`) 및 인증 필터(`JwtAuthenticationFilter`) 작성
+  - [x] Spring Security 6 Filter Chain 및 CORS 구체적 설정 (`SecurityConfig`)
+  - [x] `POST /api/auth/signup`, `POST /api/auth/login`, `GET /api/auth/me` API 개발
+- [x] **Frontend Authentication Flow**
+  - [x] Fetch API 기반 공통 통신 유틸리티(`api.js`) 및 에러/토큰 가로채기(Interceptor) 로직 구성
+  - [x] 토스 스타일의 간결한 회원가입 및 로그인 입력 페이지 구현
+  - [x] 로컬 스토리지 또는 Context API를 이용한 로그인 사용자 상태 전역 관리 구현
 
 ---
 

@@ -10,9 +10,13 @@ export async function fetchAPI(endpoint, options = {}) {
 
   // 기본 헤더 설정
   const headers = {
-    'Content-Type': 'application/json',
     ...options.headers,
   };
+
+  const isFormData = options.body instanceof FormData;
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   // 로컬 스토리지에서 JWT 토큰 가져오기
   const token = localStorage.getItem('token');
@@ -25,9 +29,14 @@ export async function fetchAPI(endpoint, options = {}) {
     headers,
   };
 
-  if (options.body && typeof options.body === 'object') {
-    fetchOptions.body = JSON.stringify(options.body);
+  if (options.body) {
+    if (isFormData) {
+      fetchOptions.body = options.body;
+    } else if (typeof options.body === 'object') {
+      fetchOptions.body = JSON.stringify(options.body);
+    }
   }
+
 
   try {
     const response = await fetch(url, fetchOptions);

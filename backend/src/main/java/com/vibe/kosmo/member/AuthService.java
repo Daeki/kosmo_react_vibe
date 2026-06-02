@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -14,10 +15,11 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ProfileImageService profileImageService;
 
     // 회원가입
     @Transactional
-    public void signup(SignupRequest request) {
+    public void signup(SignupRequest request, MultipartFile profileImage) {
         if (memberRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
@@ -29,7 +31,14 @@ public class AuthService {
                 .role(Role.ROLE_USER) // 기본 권한: USER
                 .build();
 
-        memberRepository.save(member);
+        // 1. 회원 정보 먼저 저장 (Id가 생성되어야 1:1 관계의 프로필 저장 가능)
+        Member savedMember = memberRepository.save(member);
+
+        // 2. 프로필 이미지가 존재하면 업로드 및 저장 연계
+        if (profileImage != null && !profileImage.isEmpty()) {
+            MemberProfile memberProfile = profileImageService.saveProfileImage(profileImage, savedMember);
+            savedMember.updateProfile(memberProfile);
+        }
     }
 
     // 로그인

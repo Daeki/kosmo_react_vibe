@@ -21,3 +21,10 @@ jwt:
   # .env의 JWT_SCRET 키로 서명용 비밀키를 주입받습니다.
   secret: ${JWT_SCRET}
   expiration: 86400000 # 24시간 (밀리초 단위)
+
+file:
+  upload-dir: ${UPLOAD_BASE_DIR:D:/upload}
+  paths:
+    members: members
+    boards: boards
+

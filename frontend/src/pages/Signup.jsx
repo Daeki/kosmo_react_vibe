@@ -12,6 +12,25 @@ export default function Signup() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImage(null);
+    setImagePreview('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +45,7 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      await signup(email, password, nickname);
+      await signup(email, password, nickname, profileImage);
       setSuccess('회원가입이 성공적으로 완료되었습니다! 잠시 후 로그인 페이지로 이동합니다.');
       setTimeout(() => {
         navigate('/login');
@@ -66,6 +85,35 @@ export default function Signup() {
             <span>{success}</span>
           </div>
         )}
+
+        {/* 프로필 이미지 업로드 영역 */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="relative w-24 h-24 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden hover:bg-slate-100 transition-colors group">
+            {imagePreview ? (
+              <img src={imagePreview} alt="Profile Preview" className="w-full h-full object-cover" />
+            ) : (
+              <div className="text-center text-slate-400">
+                <span className="text-2xl">📷</span>
+                <p className="text-[10px] font-semibold mt-1">사진 추가</p>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+            />
+          </div>
+          {imagePreview && (
+            <button
+              type="button"
+              onClick={handleRemoveImage}
+              className="text-xs text-red-500 hover:text-red-600 mt-2 font-medium"
+            >
+              사진 삭제
+            </button>
+          )}
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* 이메일 입력 */}

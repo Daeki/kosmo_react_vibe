@@ -64,16 +64,31 @@ export function AuthProvider({ children }) {
   };
 
   // 회원가입
-  const signup = async (email, password, nickname) => {
+  const signup = async (email, password, nickname, profileImage) => {
     try {
+      const formData = new FormData();
+      
+      // 백엔드의 @RequestPart("signupData") SignupRequest 데이터 바인딩을 위해 Blob 처리
+      const signupData = { email, password, nickname };
+      formData.append(
+        'signupData',
+        new Blob([JSON.stringify(signupData)], { type: 'application/json' })
+      );
+
+      // 프로필 이미지 파일이 전달된 경우 FormData에 추가
+      if (profileImage) {
+        formData.append('profileImage', profileImage);
+      }
+
       await fetchAPI('/auth/signup', {
         method: 'POST',
-        body: { email, password, nickname },
+        body: formData,
       });
     } catch (error) {
       throw error;
     }
   };
+
 
   // 로그아웃
   const logout = () => {

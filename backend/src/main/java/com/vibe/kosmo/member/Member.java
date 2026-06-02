@@ -34,6 +34,17 @@ public class Member {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MemberProfile memberProfile;
+
+    public void updateProfile(MemberProfile memberProfile) {
+        this.memberProfile = memberProfile;
+        if (memberProfile != null && memberProfile.getMember() != this) {
+            memberProfile.setMember(this);
+        }
+    }
+
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -2,10 +2,12 @@ package com.vibe.kosmo.member;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,11 +20,14 @@ public class AuthController {
     private final AuthService authService;
 
     // 회원가입 API
-    @PostMapping("/signup")
-    public ResponseEntity<Map<String, String>> signup(@Valid @RequestBody SignupRequest request) {
-        authService.signup(request);
+    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, String>> signup(
+            @Valid @RequestPart("signupData") SignupRequest request,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+        authService.signup(request, profileImage);
         Map<String, String> response = new HashMap<>();
         response.put("message", "회원가입이 성공적으로 완료되었습니다.");
+
         return ResponseEntity.ok(response);
     }
 
