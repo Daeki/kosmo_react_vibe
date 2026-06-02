@@ -47,18 +47,23 @@ graph TD
 경로: `com.vibe.kosmo` 하위
 * `[Domain 패키지]` (예: `member`, `board`, `notice`, `stock`)
   - 별도의 폴더 분할 없이 아래의 모든 클래스를 단일 도메인 패키지에 나란히 위치시킵니다.
-  - *예시 (`member` 패키지 내부)*:
-    - `MemberController.java`
-    - `MemberService.java`
+  - *예시 1 (`member` 패키지 내부 - 1:1 관계)*:
+    - `Member.java` (주 엔티티)
+    - `MemberProfile.java` (대상 엔티티 - 1:1 비식별 관계)
+    - `MemberProfileRepository.java`
     - `MemberRepository.java`
-    - `Member.java` (Entity)
+    - `ProfileImageService.java`
     - `SignupRequest.java` (DTO)
-    - `LoginRequest.java` (DTO)
+  - *예시 2 (`notice` 패키지 내부 - 1:N 다중 첨부파일)*:
+    - `Notice.java` (주 엔티티)
+    - `NoticeAttachment.java` (첨부파일 엔티티 - 1:N 관계)
+    - `NoticeRepository.java`
+    - `NoticeAttachmentRepository.java`
 * `global` (글로벌 공통 설정)
   - 공통 기술 영역(인프라)은 가독성을 위해 하위 패키지로 분류합니다.
   - `.security` : JWT 토큰 처리 필터, Provider 및 Spring Security 설정
   - `.exception` : 글로벌 예외 정의 및 `@RestControllerAdvice` 구현
-  - `.config` : CORS, WebConfigurer 등 글로벌 애플리케이션 설정
+  - `.config` : CORS, WebConfigurer, 글로벌 업로드 프로퍼티 및 공통 `FileStore` 설정
 
 ### 2. 네이밍 규칙
 * **클래스명**: PascalCase (예: `MemberController`, `BoardService`)
@@ -121,3 +126,25 @@ JPA DDL Auto 가 테이블을 생성하거나 마이그레이션 스크립트를
 ### 4. GitHub MCP 서버 설정 연동
 * 프로젝트의 외부 시스템 및 데이터 연동을 자율 수행할 수 있도록 `.agent/config.json` 내에 GitHub MCP 설정을 구성합니다.
 * 이때 토큰과 같은 민감 키값은 하드코딩하지 않고, 루트 디렉토리의 `.env` 내 `GITHUB_ACCESS_TOKEN`을 간접 참조하도록 바인딩(`"GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_ACCESS_TOKEN}"`)하여 관리합니다.
+
+---
+
+## 📂 File Upload & Storage Standard (파일 업로드 및 저장소 규칙)
+
+어플리케이션 내의 파일 업로드 기능은 유연성, 이식성 및 보안성을 보장하기 위해 다음 원칙을 반드시 준수하여 설계 및 코딩합니다.
+
+### 1. 물리적 파일 경로의 데이터베이스 저장 금지
+* 실제 파일이 서버 디스크 상에 저장되는 절대 경로(예: `D:/upload/...`, `/var/www/upload/...`)는 **데이터베이스 컬럼에 직접 저장해서는 안 됩니다.**
+* 서버 환경(개발, 스테이징, 운영 등)이나 이관(OS 변경 등)에 따라 물리 저장 디렉토리는 언제든지 바뀔 수 있기 때문입니다.
+* 데이터베이스에는 오직 **원본 파일명(`originalFileName`)**, **서버에 저장된 UUID 파일명(`storeFileName`)**, **파일 크기 및 확장자 타입**만 저장합니다.
+* 파일 조회, 스트리밍, 다운로드 등을 위해 풀 경로(Full Path)가 필요한 경우, 런타임에 `FileStore.getFullFilePath(domainKey, storeFileName)`와 같이 yml 환경설정 기반의 공통 경로를 읽어와 동적으로 결합해 사용합니다.
+
+### 2. 공통 파일 스토어(`FileStore`)의 활용
+* 파일 업로드 로직을 각 도메인 서비스(예: `ProfileImageService`, `BoardService`)에 직접 하드코딩하여 구현하지 않습니다.
+* 파일 물리 저장, 중복 방지를 위한 UUID 변환, 디렉토리 생성 및 메타데이터 변환은 글로벌 영역에 등록된 `FileStore` 공통 컴포넌트를 통해서만 통합 처리해야 합니다.
+* 하위 도메인 폴더명은 `application.yml`의 `file.paths.[domainKey]` 형태로 주입받아 사용하도록 구성하여, 코드의 수정을 완벽히 방지합니다.
+
+### 3. 첨부파일 개수 및 용량 검증
+* 하나의 도메인(예: 공지사항)에 추가될 수 있는 최대 첨부파일 개수 제한(예: 최대 5개) 및 개별 파일의 크기(예: 10MB) 제한 정책은 DB 제약조건이 아닌 **비즈니스 서비스(Service) 계층 또는 DTO 검증부에서 수행**하도록 규정합니다.
+* 위반 시 명시적인 `IllegalArgumentException`을 던져 글로벌 예외 처리기(`GlobalExceptionHandler`)를 통해 사용자에게 의미 있는 피드백을 주어야 합니다.
+
