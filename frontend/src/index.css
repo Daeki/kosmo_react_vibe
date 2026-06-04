@@ -8,3 +8,22 @@ html, body {
   box-sizing: border-box;
   background-color: #F9FAFB; /* toss-gray-50 */
 }
+
+@keyframes blink-up {
+  0% { background-color: rgba(239, 68, 68, 0.15); }
+  100% { background-color: transparent; }
+}
+
+@keyframes blink-down {
+  0% { background-color: rgba(59, 130, 246, 0.15); }
+  100% { background-color: transparent; }
+}
+
+.animate-blink-up {
+  animation: blink-up 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-blink-down {
+  animation: blink-down 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+

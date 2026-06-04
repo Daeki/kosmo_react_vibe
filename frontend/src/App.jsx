@@ -7,6 +7,9 @@ import NoticeList from './pages/NoticeList';
 import NoticeDetail from './pages/NoticeDetail';
 import NoticeCreate from './pages/NoticeCreate';
 import NoticeEdit from './pages/NoticeEdit';
+import StockDashboard from './pages/StockDashboard';
+import StockDetail from './pages/StockDetail';
+
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -77,7 +80,13 @@ const Home = () => {
 const Board = () => (
   <div className="p-8 max-w-md mx-auto bg-white rounded-3xl shadow-sm mt-10 border border-slate-50">
     <h2 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">자유게시판</h2>
-    <p className="text-slate-500 text-sm mb-6">아직 작성된 글이 없습니다.</p>
+    <div className="p-5 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800 flex items-start space-x-3 mb-6 text-left">
+      <span className="text-xl">⚠️</span>
+      <div>
+        <p className="font-extrabold text-sm">경고: 게시글 데이터가 없습니다.</p>
+        <p className="text-xs text-amber-600/90 mt-0.5">커뮤니티에 등록된 첫 게시글의 주인공이 되어보세요!</p>
+      </div>
+    </div>
     <Link to="/" className="text-blue-600 font-bold text-sm hover:underline">홈으로 돌아가기</Link>
   </div>
 );
@@ -105,7 +114,8 @@ const MainLayout = () => {
       <Header />
       <main className="max-w-4xl mx-auto px-6 py-10 w-full flex-grow">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<StockDashboard />} />
+          <Route path="/stocks/:code" element={<StockDetail />} />
           <Route path="/board" element={<Board />} />
           <Route path="/notice" element={<NoticeList />} />
           <Route path="/notice/create" element={<NoticeCreate />} />

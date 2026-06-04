@@ -22,4 +22,11 @@ public class GlobalExceptionHandler {
         errorResponse.put("error", e.getMessage());
         return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).body(errorResponse);
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException e) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", e.getMessage());
+        return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
 }

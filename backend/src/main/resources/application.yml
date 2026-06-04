@@ -28,3 +28,9 @@ file:
     members: members
     boards: boards
 
+kis:
+  app-key: ${KIS_APP_KEY}
+  app-secret: ${KIS_APP_SECRET}
+  base-url: ${KIS_BASE_URL:https://openapivts.koreainvestment.com:29443}
+
+

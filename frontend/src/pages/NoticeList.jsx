@@ -77,9 +77,12 @@ export default function NoticeList() {
       )}
 
       {notices.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center border border-slate-100/80 shadow-sm">
-          <span className="text-3xl block mb-2">📢</span>
-          <p className="text-slate-500 text-sm font-semibold">등록된 공지사항이 없습니다.</p>
+        <div className="p-6 bg-amber-50 border border-amber-200 rounded-3xl text-amber-800 flex items-start space-x-3 shadow-sm">
+          <span className="text-2xl mt-0.5">⚠️</span>
+          <div>
+            <p className="font-extrabold text-sm">경고: 등록된 공지사항 데이터가 존재하지 않습니다.</p>
+            <p className="text-xs text-amber-600/90 mt-0.5">새로운 소식이 준비되는 대로 공지사항이 등록될 예정입니다. 잠시만 기다려 주세요.</p>
+          </div>
         </div>
       ) : (
         <div className="bg-white rounded-3xl border border-slate-100/80 shadow-sm overflow-hidden divide-y divide-slate-100/60">
